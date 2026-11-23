@@ -38,7 +38,7 @@ def send_telegram(text):
         timeout=30,
     )
 
-print("Ctrl+C чтобы остановить")
+print("Ctrl+C to stop")
 old, etag = get_stars("octocat")
 try:
     while True:
@@ -52,21 +52,21 @@ try:
             r = e.response
             if r.status_code in (403, 429) and r.headers.get("x-ratelimit-remaining") == "0":
                 wait = max(0, int(r.headers["x-ratelimit-reset"]) - time.time())
-                print(f"лимит, жду {int(wait)} с")
+                print(f"limit, waiting {int(wait)} с")
                 time.sleep(wait)
             else:
-                print("ошибка сервера:", r.status_code)
+                print("server error:", r.status_code)
             continue
         except httpx.HTTPError as e:
-            print("сеть или таймаут:", type(e).__name__)
+            print("network or timeout:", type(e).__name__)
             continue
 
         for name, stars in new.items():
             if name not in old:
-                send_telegram(f"Новый репозиторий {name}: {stars} звёзд")
+                send_telegram(f"New repository {name}: {stars} stars")
             elif stars != old[name]:
                 send_telegram(f"{name}: {old[name]} → {stars}")
         old = new
         
 except KeyboardInterrupt:
-    print("Скрипт остановлен")
+    print("Script stopped")
