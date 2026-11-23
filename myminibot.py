@@ -11,7 +11,8 @@ headers = {
     "Accept": "application/vnd.github+json",    
 }
 
-INTERVAL = 60  
+INTERVAL = 10  
+
 
 def get_stars(user, etag=None):
     req_headers = dict(headers)
@@ -39,15 +40,15 @@ def send_telegram(text):
     )
 
 print("Ctrl+C to stop")
-old, etag = get_stars("octocat")
+old, etag = get_stars("zentKlan")
 try:
     while True:
         time.sleep(INTERVAL)
-        new, etag = get_stars("octocat", etag)
+        new, etag = get_stars("zentKlan", etag)
         if new is None:
             continue
         try:
-            new = get_stars("octocat")
+            new, etag = get_stars("zentKlan")
         except httpx.HTTPStatusError as e:
             r = e.response
             if r.status_code in (403, 429) and r.headers.get("x-ratelimit-remaining") == "0":
@@ -65,7 +66,7 @@ try:
             if name not in old:
                 send_telegram(f"New repository {name}: {stars} stars")
             elif stars != old[name]:
-                send_telegram(f"{name}: {old[name]} → {stars}")
+                send_telegram(f"{name}: {old[name]} --> {stars}")
         old = new
         
 except KeyboardInterrupt:
